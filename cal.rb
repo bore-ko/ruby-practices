@@ -1,40 +1,40 @@
 require 'optparse/date'
 
 def get_year_month
-  opt = OptionParser.new
-  opt.on('-y') {|v| v }
-  opt.on('-m') {|v| v }
-  return argv = opt.parse!(ARGV) unless ARGV == []
-  now = Date.today
-  argv = now.year, now.month
-end
-
-def title
-  get_year_month
-  @year = get_year_month.first.to_i
-  @month = get_year_month.last.to_i
-  date = Date.new(@year, @month)
-  print "#{date.mon}月 #{date.year}".center(20)
-end
-
-def day_of_week
-  weeks = ['日', '月', '火', '水', '木', '金', '土']
-  weeks.each do |week|
-    print week + " "
+  today = Date.today
+  params = ARGV.getopts('y:', 'm:')
+  if params['y'].to_i.zero?
+    @year = today.year
+  else 
+    @year = params['y'].to_i
   end
+
+  if params['m'].to_i.zero?
+    @month = today.month
+  else
+    @month = params['m'].to_i
+  end
+  Date.new(@year, @month)
 end
 
 def blank_day
   @first_day = Date.new(@year, @month, 1)
-  blank_days = @first_day.wday
-  print "   " * blank_days
+  @first_day.wday
 end
 
-def date
-  last_day = Date.new(@year, @month, -1)
+def last_day
+  Date.new(@year, @month, -1)
+end
+
+def main(year_month)
+  print "#{@month}月 #{@year}".center(20)
+  puts
+  print %w(日 月 火 水 木 金 土).join(" ")
+  puts
+  print "   " * blank_day
   (@first_day..last_day).each do |date|
     one_week = date.strftime('%e').to_s + " "
-    if date.wday == 6 
+    if date.wday == 6
       puts one_week
     else
       print one_week
@@ -42,13 +42,4 @@ def date
   end
 end
 
-def calender
-  title
-  puts 
-  day_of_week
-  puts
-  blank_day
-  date
-end
-
-calender
+main(get_year_month)
