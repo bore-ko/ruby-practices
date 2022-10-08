@@ -1,45 +1,47 @@
 require 'optparse/date'
 
-def get_year_month
-  today = Date.today
-  params = ARGV.getopts('y:', 'm:')
-  if params['y'].to_i.zero?
-    @year = today.year
-  else 
-    @year = params['y'].to_i
+def return_the_date
+  now = Date.today
+  today =
+    { year: now.year,
+      month: now.month }
+  argv = ARGV.getopts('y:', 'm:')
+  unless argv['y'].to_i.zero?
+    today[:year] = argv['y'].to_i
   end
+  unless argv['m'].to_i.zero?
+    today[:month] = argv['m'].to_i
+  end
+  today
+end
 
-  if params['m'].to_i.zero?
-    @month = today.month
+def first_day(today)
+  Date.new(today[:year], today[:month], 1)
+end
+
+def last_day(today)
+  Date.new(today[:year], today[:month], -1)
+end
+
+def week(date)
+  one_week = date.strftime('%e').to_s + " "
+  if date.wday == 6
+    puts one_week
   else
-    @month = params['m'].to_i
+    print one_week
   end
-  Date.new(@year, @month)
 end
 
-def blank_day
-  @first_day = Date.new(@year, @month, 1)
-  @first_day.wday
-end
-
-def last_day
-  Date.new(@year, @month, -1)
-end
-
-def main(year_month)
-  print "#{@month}月 #{@year}".center(20)
+def main
+  today = return_the_date
+  print "#{today[:month]}月 #{today[:year]}".center(20)
   puts
   print %w(日 月 火 水 木 金 土).join(" ")
   puts
-  print "   " * blank_day
-  (@first_day..last_day).each do |date|
-    one_week = date.strftime('%e').to_s + " "
-    if date.wday == 6
-      puts one_week
-    else
-      print one_week
-    end
+  print "   " * first_day(today).wday
+  (first_day(today)..last_day(today)).each do |date|
+    week(date)
   end
 end
 
-main(get_year_month)
+main
