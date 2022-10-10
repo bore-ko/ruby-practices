@@ -25,12 +25,18 @@ end
 def main(today)
   print "#{today.month}月 #{today.year}".center(20)
   puts
-  print %w(日 月 火 水 木 金 土).join(" ")
+  print %w(日 月 火 水 木 金 土).join(' ')
   puts
-  print "   " * first_day(today).wday
+  print '   ' * first_day(today).wday
   (first_day(today)..last_day(today)).each do |date|
-    day = date.strftime('%e').to_s + " "
+    day = date.strftime('%e').to_s + ' '
     day += "\n" if date.wday == 6
+    if date == today && date.month == Date.today.month && date.year == Date.today.year
+      day.delete!(' ')
+      day = "\e[30m\e[47m\"#{day}\"\e[0m"
+      day.gsub!("\"", '')
+      day += ' '
+    end
     print day
   end
 end
