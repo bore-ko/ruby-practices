@@ -16,28 +16,28 @@ def today
   date
 end
 
-def first_day(date)
-  Date.new(date.year, date.month, 1)
+def first_day(year_month)
+  Date.new(year_month.year, year_month.month, 1)
 end
 
-def last_day(date)
-  Date.new(date.year, date.month, -1)
+def last_day(year_month)
+  Date.new(year_month.year, year_month.month, -1)
 end
 
 def main
-  date = today
-  print "#{date.month}月 #{date.year}".center(20)
+  year_month = today
+  print "#{year_month.month}月 #{year_month.year}".center(20)
   puts
   print %w(日 月 火 水 木 金 土).join(' ')
   puts
-  print '   ' * first_day(date).wday
-  (first_day(date)..last_day(date)).each do |d|
-    day = d.day.to_s
-    day = "\e[30m\e[47m#{day}\e[0m" if d == today && date.month == Date.today.month && date.year == Date.today.year
-    day = day.prepend(' ') if day == '1' || day == '2' || day == '3' || day == '4' || day == '5' || day == '6' || day == '7' || day == '8' || day == '9'
-    day += ' '
-    day += "\n" if d.wday == 6
-    print  day
+  print '   ' * first_day(year_month).wday
+  (first_day(year_month)..last_day(year_month)).each do |day|
+    day_string = day.day.to_s
+    day_string = "\e[30m\e[47m#{day_string}\e[0m" if day == today && year_month.month == Date.today.month && year_month.year == Date.today.year
+    day_string.prepend(' ') if day_string == '1' || day_string == '2' || day_string == '3' || day_string == '4' || day_string == '5' || day_string == '6' || day_string == '7' || day_string == '8' || day_string == '9'
+    day_string += ' '
+    day_string += "\n" if day.wday == 6
+    print day_string
   end
 end
 main
