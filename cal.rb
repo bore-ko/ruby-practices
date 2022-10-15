@@ -34,8 +34,7 @@ def main
   (first_day(month)..last_day(month)).each do |day|
     day_string = day.day.to_s
     day_string = "\e[30m\e[47m#{day_string}\e[0m" if day == calc_month && month.month == Date.today.month && month.year == Date.today.year
-    day_string = day_string.sub(/\A[1-9]\z/, ' ' + day_string)
-    day_string += ' '
+    day_string = day_string.rjust(2) + ' '
     day_string += "\n" if day.wday == 6
     print day_string
   end
