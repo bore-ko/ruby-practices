@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def file_or_directory_names
+def current_item
   Dir.glob('*')
 end
 
-def max_file_size(names)
+def max_length_current_item(names)
   names.map(&:size).max
 end
 
-def filenames_with_spaces(names, size)
+def current_item_with_spaces(names, size)
   standard_size = 25
   small_space_size = 2
   big_space_size = 8
@@ -22,7 +22,7 @@ def filenames_with_spaces(names, size)
   end
 end
 
-def divided_filnames(added_blank_files)
+def divided_current_item(added_blank_files)
   divisor_number = 3.0
   turn_number = (added_blank_files.size / divisor_number).ceil
   filenames = []
@@ -30,27 +30,21 @@ def divided_filnames(added_blank_files)
   filenames
 end
 
-def grouped_filenames(split_filenames)
-  if split_filenames[0] && split_filenames[1] && split_filenames[2]
-    split_filenames[0].zip(split_filenames[1], split_filenames[2])
-  elsif split_filenames[1] && split_filenames[2].nil?
-    split_filenames[2] = []
-    split_filenames[2] << split_filenames[1].pop
-    split_filenames[0].zip(split_filenames[1], split_filenames[2])
+def grouped_current_item(split_filenames)
+  max_size = split_filenames.map(&:size).max
+  split_filenames.map do |names|
+    names.size < max_size && (max_size - names.size).times { names.push('') }
   end
+  split_filenames.transpose
 end
 
 def main
-  names = file_or_directory_names
-  size = max_file_size(names)
-  added_spaces_filenames = filenames_with_spaces(names, size)
-  split_filenames = divided_filnames(added_spaces_filenames)
-  processed_filenames = grouped_filenames(split_filenames)
-  if processed_filenames
-    processed_filenames.each { |f| puts f.join }
-  else
-    print split_filenames.join
-  end
+  names = current_item
+  size = max_length_current_item(names)
+  added_spaces_filenames = current_item_with_spaces(names, size)
+  split_filenames = divided_current_item(added_spaces_filenames)
+  processed_filenames = grouped_current_item(split_filenames)
+  processed_filenames.each { |filenames| puts filenames.join }
 end
 
 main
