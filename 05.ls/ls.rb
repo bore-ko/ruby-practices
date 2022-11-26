@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def current_item
+def current_items
   Dir.glob('*')
 end
 
-def max_length_current_item(names)
+def current_items_max_length(names)
   names.map(&:size).max
 end
 
-def current_item_with_spaces(names, size)
+def current_items_with_spaces(names, size)
   standard_size = 25
   small_space_size = 2
   big_space_size = 8
@@ -22,7 +22,7 @@ def current_item_with_spaces(names, size)
   end
 end
 
-def divided_current_item(added_blank_files)
+def divided_current_items(added_blank_files)
   divisor_number = 3.0
   turn_number = (added_blank_files.size / divisor_number).ceil
   filenames = []
@@ -30,7 +30,7 @@ def divided_current_item(added_blank_files)
   filenames
 end
 
-def grouped_current_item(split_filenames)
+def grouped_current_items(split_filenames)
   max_size = split_filenames.map(&:size).max
   split_filenames.map do |names|
     names.size < max_size && (max_size - names.size).times { names.push('') }
@@ -39,11 +39,11 @@ def grouped_current_item(split_filenames)
 end
 
 def main
-  names = current_item
-  size = max_length_current_item(names)
-  added_spaces_filenames = current_item_with_spaces(names, size)
-  split_filenames = divided_current_item(added_spaces_filenames)
-  processed_filenames = grouped_current_item(split_filenames)
+  names = current_items
+  size = current_items_max_length(names)
+  added_spaces_filenames = current_items_with_spaces(names, size)
+  split_filenames = divided_current_items(added_spaces_filenames)
+  processed_filenames = grouped_current_items(split_filenames)
   processed_filenames.each { |filenames| puts filenames.join }
 end
 
