@@ -1,8 +1,16 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def current_items
-  Dir.glob('*')
+def params?(argv)
+  argv == ['-a']
+end
+
+def current_items(option)
+  if option
+    Dir.glob('*', File::FNM_DOTMATCH)
+  else
+    Dir.glob('*')
+  end
 end
 
 def current_items_max_length(names)
@@ -39,7 +47,8 @@ def grouped_current_items(split_filenames)
 end
 
 def main
-  names = current_items
+  option = params?(ARGV)
+  names = current_items(option)
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
   split_filenames = divided_current_items(added_spaces_filenames)
