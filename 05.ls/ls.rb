@@ -1,12 +1,21 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-def params?(argv)
-  argv == ['-a']
+require 'optparse'
+
+def params(argv)
+  if argv == [] || argv.include?('-a')
+    optionparser = OptionParser.new
+    optionparser.on('-a')
+    optionparser.parse(argv)
+  else
+    exit
+  end
+  argv
 end
 
 def current_items(option)
-  if option
+  if option == ['-a']
     Dir.glob('*', File::FNM_DOTMATCH)
   else
     Dir.glob('*')
@@ -47,7 +56,7 @@ def grouped_current_items(split_filenames)
 end
 
 def main
-  option = params?(ARGV)
+  option = params(ARGV)
   names = current_items(option)
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
