@@ -3,7 +3,7 @@
 
 require 'optparse'
 
-def params(argv)
+def specified_option(argv)
   if argv == [] || argv.include?('-a')
     optionparser = OptionParser.new
     optionparser.on('-a')
@@ -56,7 +56,7 @@ def grouped_current_items(split_filenames)
 end
 
 def main
-  option = params(ARGV)
+  option = specified_option(ARGV)
   names = current_items(option)
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
