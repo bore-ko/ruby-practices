@@ -3,19 +3,15 @@
 
 require 'optparse'
 
-def specified_option(argv)
-  if argv == [] || argv.include?('-a')
-    optionparser = OptionParser.new
-    optionparser.on('-a')
-    optionparser.parse(argv)
-  else
-    exit
-  end
+def option(argv)
+  optionparser = OptionParser.new
+  optionparser.on('-a')
+  optionparser.parse(argv)
   argv
 end
 
-def current_items(option)
-  if option == ['-a']
+def current_items(options)
+  if options == ['-a']
     Dir.glob('*', File::FNM_DOTMATCH)
   else
     Dir.glob('*')
@@ -56,8 +52,8 @@ def grouped_current_items(split_filenames)
 end
 
 def main
-  option = specified_option(ARGV)
-  names = current_items(option)
+  options = option(ARGV)
+  names = current_items(options)
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
   split_filenames = divided_current_items(added_spaces_filenames)
