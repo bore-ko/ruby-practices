@@ -5,14 +5,17 @@ require 'optparse'
 
 def option(argv)
   optionparser = OptionParser.new
-  optionparser.on('-a')
+  optionparser.on('-a', '-r')
   optionparser.parse(argv)
   argv
 end
 
 def current_items(options)
-  if options == ['-a']
+  case options
+  when ['-a']
     Dir.glob('*', File::FNM_DOTMATCH)
+  when ['-r']
+    Dir.glob('*').reverse
   else
     Dir.glob('*')
   end
@@ -39,7 +42,7 @@ def divided_current_items(added_blank_files)
   divisor_number = 3.0
   turn_number = (added_blank_files.size / divisor_number).ceil
   filenames = []
-  added_blank_files.sort.each_slice(turn_number) { |names| filenames.push(names) }
+  added_blank_files.each_slice(turn_number) { |names| filenames.push(names) }
   filenames
 end
 
