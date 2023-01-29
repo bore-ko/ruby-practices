@@ -2,10 +2,11 @@
 # frozen_string_literal: true
 
 require 'optparse'
+require 'etc'
 
 def option(argv)
   optionparser = OptionParser.new
-  optionparser.on('-a', '-r')
+  optionparser.on('-a', '-r', '-l')
   optionparser.parse(argv)
   argv
 end
@@ -54,9 +55,58 @@ def grouped_current_items(split_filenames)
   split_filenames.transpose
 end
 
+def current_items_total_blocks(names)
+  total_blocks = 0
+  names.each do |name|
+    details_file = File.lstat(name)
+    total_blocks += details_file.blocks
+  end
+  total_blocks
+end
+
+def file_types_hash
+  { 'file' => '-', 'directory' => 'd', 'link' => 'l' }
+end
+
+def mode_types_hash
+  { 1 => '--x', 2 => '-w-', 3 => '-wx', 4 => 'r--', 5 => 'r-x', 6 => 'rw-', 7 => 'rwx' }
+end
+
+def print_current_items_details(name, file_types, mode_types)
+  details_file = File.lstat(name)
+  type = details_file.ftype
+  print file_types[type]
+  octal_string = details_file.mode.to_s(8)
+  owner_permission = octal_string.slice(-3).to_i
+  group_permission = octal_string.slice(-2).to_i
+  other_user_permissoin = octal_string.slice(-1).to_i
+  print "#{mode_types[owner_permission]}#{mode_types[group_permission]}#{mode_types[other_user_permissoin]}  "
+  print "#{details_file.nlink} "
+  print "#{Etc.getpwuid(details_file.uid).name}  "
+  print "#{Etc.getgrgid(details_file.gid).name}  "
+  print "#{details_file.size.to_s.rjust(4)} "
+  print "#{details_file.mtime.month.to_s.rjust(2)} "
+  print "#{details_file.mtime.day.to_s.rjust(2)} "
+  print "#{format('%02d', details_file.mtime.hour)}:#{format('%02d', details_file.mtime.min)} "
+  print name
+  print " -> #{File.readlink(name)}" if file_types[type] == 'l'
+  puts
+end
+
 def main
   options = option(ARGV)
   names = current_items(options)
+  if  options == ['-l']
+    blocks = current_items_total_blocks(names)
+    print "total #{blocks}"
+    puts
+    file_types = file_types_hash
+    mode_types = mode_types_hash
+    names.each do |name|
+      print_current_items_details(name, file_types, mode_types)
+    end
+    exit
+  end
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
   split_filenames = divided_current_items(added_spaces_filenames)
