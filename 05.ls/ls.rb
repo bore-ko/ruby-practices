@@ -4,6 +4,9 @@
 require 'optparse'
 require 'etc'
 
+FILE_TYPES = { 'file' => '-', 'directory' => 'd', 'link' => 'l' }.freeze
+MODE_TYPES = { 1 => '--x', 2 => '-w-', 3 => '-wx', 4 => 'r--', 5 => 'r-x', 6 => 'rw-', 7 => 'rwx' }.freeze
+
 def option(argv)
   optionparser = OptionParser.new
   optionparser.on('-a', '-r', '-l')
@@ -55,7 +58,7 @@ def grouped_current_items(split_filenames)
   split_filenames.transpose
 end
 
-def current_items_total_blocks(names)
+def current_items_details_total_blocks(names)
   total_blocks = 0
   names.each do |name|
     details_file = File.lstat(name)
@@ -64,54 +67,72 @@ def current_items_total_blocks(names)
   total_blocks
 end
 
-def file_types_hash
-  { 'file' => '-', 'directory' => 'd', 'link' => 'l' }
+def current_items_details_file(name)
+  File.lstat(name)
 end
 
-def mode_types_hash
-  { 1 => '--x', 2 => '-w-', 3 => '-wx', 4 => 'r--', 5 => 'r-x', 6 => 'rw-', 7 => 'rwx' }
+def print_current_items_details_permissoin(file)
+  octal_number = 8
+  file_mode = file.mode.to_s(octal_number)
+  third_behind = -3
+  second_behind = -2
+  first_behind = -1
+  owner_permission = file_mode.slice(third_behind).to_i
+  group_permission = file_mode.slice(second_behind).to_i
+  other_user_permissoin = file_mode.slice(first_behind).to_i
+  print "#{MODE_TYPES[owner_permission]}#{MODE_TYPES[group_permission]}#{MODE_TYPES[other_user_permissoin]}  "
 end
 
-def print_current_items_details(name, file_types, mode_types)
-  details_file = File.lstat(name)
-  type = details_file.ftype
-  print file_types[type]
-  octal_string = details_file.mode.to_s(8)
-  owner_permission = octal_string.slice(-3).to_i
-  group_permission = octal_string.slice(-2).to_i
-  other_user_permissoin = octal_string.slice(-1).to_i
-  print "#{mode_types[owner_permission]}#{mode_types[group_permission]}#{mode_types[other_user_permissoin]}  "
-  print "#{details_file.nlink} "
-  print "#{Etc.getpwuid(details_file.uid).name}  "
-  print "#{Etc.getgrgid(details_file.gid).name}  "
-  print "#{details_file.size.to_s.rjust(4)} "
-  print "#{details_file.mtime.month.to_s.rjust(2)} "
-  print "#{details_file.mtime.day.to_s.rjust(2)} "
-  print "#{format('%02d', details_file.mtime.hour)}:#{format('%02d', details_file.mtime.min)} "
+def current_items_details_with_spaces(names)
+  names_sizes = []
+  names.each do |name|
+    names_sizes << File.lstat(name).size.to_s.length
+  end
+  names_sizes.max
+end
+
+def print_repeat_current_items_details(name, added_spaces)
+  file = current_items_details_file(name)
+  print FILE_TYPES[file.ftype]
+  print_current_items_details_permissoin(file)
+  print "#{file.nlink} "
+  print "#{Etc.getpwuid(file.uid).name}  "
+  print "#{Etc.getgrgid(file.gid).name}  "
+  print "#{file.size.to_s.rjust(added_spaces)} "
+  two_width = 2
+  print "#{file.mtime.month.to_s.rjust(two_width)} "
+  print "#{file.mtime.day.to_s.rjust(two_width)} "
+  print "#{format('%02d', file.mtime.hour)}:#{format('%02d', file.mtime.min)} "
   print name
-  print " -> #{File.readlink(name)}" if file_types[type] == 'l'
+  print " -> #{File.readlink(name)}" if FILE_TYPES[file.ftype] == 'l'
   puts
 end
 
-def main
-  options = option(ARGV)
-  names = current_items(options)
-  if  options == ['-l']
-    blocks = current_items_total_blocks(names)
-    print "total #{blocks}"
-    puts
-    file_types = file_types_hash
-    mode_types = mode_types_hash
-    names.each do |name|
-      print_current_items_details(name, file_types, mode_types)
-    end
-    exit
+def print_current_items_details(names)
+  blocks = current_items_details_total_blocks(names)
+  print "total #{blocks}\n"
+  added_spaces = current_items_details_with_spaces(names)
+  names.each do |name|
+    print_repeat_current_items_details(name, added_spaces)
   end
+end
+
+def puts_current_items(names)
   size = current_items_max_length(names)
   added_spaces_filenames = current_items_with_spaces(names, size)
   split_filenames = divided_current_items(added_spaces_filenames)
   processed_filenames = grouped_current_items(split_filenames)
   processed_filenames.each { |filenames| puts filenames.join }
+end
+
+def main
+  options = option(ARGV)
+  names = current_items(options)
+  if options == ['-l']
+    print_current_items_details(names)
+  else
+    puts_current_items(names)
+  end
 end
 
 main
