@@ -15,10 +15,11 @@ def option(argv)
 end
 
 def current_items(options)
-  case options
-  when ['-a']
+  if options.to_s.match?('a') && options.to_s.match?('r')
+    Dir.glob('*', File::FNM_DOTMATCH).reverse
+  elsif options.to_s.match?('a')
     Dir.glob('*', File::FNM_DOTMATCH)
-  when ['-r']
+  elsif options.to_s.match?('r')
     Dir.glob('*').reverse
   else
     Dir.glob('*')
@@ -81,11 +82,23 @@ def current_items_details_with_spaces(names)
   names.map { |name| File.lstat(name).size.to_s.length }.max
 end
 
-def print_repeat_current_items_details(name, added_spaces)
+def current_items_nlink_with_spaces(names)
+  names.map { |name| File.lstat(name).nlink }.max
+end
+
+def current_items_nlink(added_nlink_spaces, file)
+  if added_nlink_spaces < 10
+    "#{file.nlink} "
+  else
+    "#{file.nlink.to_s.rjust(2)} "
+  end
+end
+
+def print_repeat_current_items_details(name, added_spaces, added_nlink_spaces)
   file = current_items_details_file(name)
   print FILE_TYPES[file.ftype]
   print current_items_permission(file)
-  print "#{file.nlink} "
+  print current_items_nlink(added_nlink_spaces, file)
   print "#{Etc.getpwuid(file.uid).name}  "
   print "#{Etc.getgrgid(file.gid).name}  "
   print "#{file.size.to_s.rjust(added_spaces)} "
@@ -102,8 +115,9 @@ def print_current_items_details(current_items)
   blocks = total_blocks_of(current_items)
   print "total #{blocks}\n"
   added_spaces = current_items_details_with_spaces(current_items)
+  added_nlink_spaces = current_items_nlink_with_spaces(current_items)
   current_items.each do |current_item|
-    print_repeat_current_items_details(current_item, added_spaces)
+    print_repeat_current_items_details(current_item, added_spaces, added_nlink_spaces)
   end
 end
 
@@ -116,7 +130,7 @@ def puts_current_items(names)
 end
 
 def main
-  if option(ARGV) == ['-l']
+  if option(ARGV).to_s.match?('l')
     print_current_items_details(current_items(option(ARGV)))
   else
     puts_current_items(current_items(option(ARGV)))
