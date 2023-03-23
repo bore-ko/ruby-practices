@@ -9,19 +9,25 @@ MODE_TYPES = { 1 => '--x', 2 => '-w-', 3 => '-wx', 4 => 'r--', 5 => 'r-x', 6 => 
 
 def option(argv)
   optionparser = OptionParser.new
-  optionparser.on('-a', '-r', '-l')
+  params = {}
+  optionparser.on('-a') { |v| params[:a] = v }
+  optionparser.on('-r') { |v| params[:r] = v }
+  optionparser.on('-l') { |v| params[:l] = v }
   optionparser.parse(argv)
-  argv
+  params
 end
 
 def current_items(options)
-  case options
-  when ['-a']
-    Dir.glob('*', File::FNM_DOTMATCH)
-  when ['-r']
-    Dir.glob('*').reverse
+  current_items =
+    if options.include?(:a)
+      Dir.glob('*', File::FNM_DOTMATCH)
+    else
+      Dir.glob('*')
+    end
+  if options.include?(:r)
+    current_items.reverse
   else
-    Dir.glob('*')
+    current_items
   end
 end
 
@@ -81,11 +87,15 @@ def current_items_details_with_spaces(names)
   names.map { |name| File.lstat(name).size.to_s.length }.max
 end
 
-def print_repeat_current_items_details(name, added_spaces)
+def current_items_nlink_with_spaces(names)
+  names.map { |name| File.lstat(name).nlink.to_s.length }.max
+end
+
+def print_repeat_current_items_details(name, added_spaces, added_nlink_spaces)
   file = current_items_details_file(name)
   print FILE_TYPES[file.ftype]
   print current_items_permission(file)
-  print "#{file.nlink} "
+  print "#{file.nlink.to_s.rjust(added_nlink_spaces)} "
   print "#{Etc.getpwuid(file.uid).name}  "
   print "#{Etc.getgrgid(file.gid).name}  "
   print "#{file.size.to_s.rjust(added_spaces)} "
@@ -102,8 +112,9 @@ def print_current_items_details(current_items)
   blocks = total_blocks_of(current_items)
   print "total #{blocks}\n"
   added_spaces = current_items_details_with_spaces(current_items)
+  added_nlink_spaces = current_items_nlink_with_spaces(current_items)
   current_items.each do |current_item|
-    print_repeat_current_items_details(current_item, added_spaces)
+    print_repeat_current_items_details(current_item, added_spaces, added_nlink_spaces)
   end
 end
 
@@ -116,7 +127,7 @@ def puts_current_items(names)
 end
 
 def main
-  if option(ARGV) == ['-l']
+  if option(ARGV).include?(:l)
     print_current_items_details(current_items(option(ARGV)))
   else
     puts_current_items(current_items(option(ARGV)))
