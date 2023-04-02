@@ -5,7 +5,7 @@ require 'optparse'
 
 TEXT_SIZE = 8
 
-def run_wc
+def run
   File.pipe?($stdin) ? wc_stdin((option(ARGV))) : wc_paths((option(ARGV)))
 end
 
@@ -20,24 +20,23 @@ def option(argv)
 end
 
 def wc_stdin(options)
-  standard_inputs = $stdin.to_a
-  if options == {}
-    print_stdin_stats(standard_inputs)
+  if options.empty?
+    print_stdin_stats
   else
-    print_stdin_stats_with_options(options, standard_inputs)
+    print_stdin_stats_with_options(options)
   end
   puts
 end
 
-def print_stdin_stats(standard_inputs)
-  argv = standard_inputs
+def print_stdin_stats
+  argv = $stdin.to_a
   print count_lines(argv).to_s.rjust(TEXT_SIZE)
   print count_words(argv).to_s.rjust(TEXT_SIZE)
   print count_bytesize(argv).to_s.rjust(TEXT_SIZE)
 end
 
 def count_lines(argv)
-  argv.instance_of?(Array) ? argv.size : File.readlines(argv).count
+  argv.instance_of?(Array) ? argv.count : File.readlines(argv).count
 end
 
 def count_words(argv)
@@ -48,11 +47,11 @@ def count_bytesize(argv)
   argv.instance_of?(Array) ? argv.join.bytesize : File.read(argv).bytesize
 end
 
-def print_stdin_stats_with_options(options, standard_inputs)
-  argv = standard_inputs
-  options.include?(:l) && (print count_lines(argv).to_s.rjust(TEXT_SIZE))
-  options.include?(:w) && (print count_words(argv).to_s.rjust(TEXT_SIZE))
-  options.include?(:c) && (print count_bytesize(argv).to_s.rjust(TEXT_SIZE))
+def print_stdin_stats_with_options(options)
+  argv = $stdin.to_a
+  print count_lines(argv).to_s.rjust(TEXT_SIZE) if options[:l]
+  print count_words(argv).to_s.rjust(TEXT_SIZE) if options[:w]
+  print count_bytesize(argv).to_s.rjust(TEXT_SIZE) if options[:c]
 end
 
 def wc_paths(options)
@@ -70,7 +69,7 @@ def wc_paths(options)
 end
 
 def print_file_stats(options, argv)
-  if options == {}
+  if options.empty?
     print count_lines(argv).to_s.rjust(TEXT_SIZE)
     print count_words(argv).to_s.rjust(TEXT_SIZE)
     print count_bytesize(argv).to_s.rjust(TEXT_SIZE)
@@ -81,20 +80,20 @@ def print_file_stats(options, argv)
 end
 
 def print_file_stats_with_options(options, argv)
-  options.include?(:l) && (print count_lines(argv).to_s.rjust(TEXT_SIZE))
-  options.include?(:w) && (print count_words(argv).to_s.rjust(TEXT_SIZE))
-  options.include?(:c) && (print count_bytesize(argv).to_s.rjust(TEXT_SIZE))
+  print count_lines(argv).to_s.rjust(TEXT_SIZE) if options[:l]
+  print count_words(argv).to_s.rjust(TEXT_SIZE) if options[:w]
+  print count_bytesize(argv).to_s.rjust(TEXT_SIZE) if options[:c]
 end
 
 def print_sum_file_stats(options)
-  if options == {}
+  if options.empty?
     print sum_lines.to_s.rjust(TEXT_SIZE)
     print sum_words.to_s.rjust(TEXT_SIZE)
     print sum_bytesize.to_s.rjust(TEXT_SIZE)
   else
-    options.include?(:l) && (print sum_lines.to_s.rjust(TEXT_SIZE))
-    options.include?(:w) && (print sum_words.to_s.rjust(TEXT_SIZE))
-    options.include?(:c) && (print sum_bytesize.to_s.rjust(TEXT_SIZE))
+    print sum_lines.to_s.rjust(TEXT_SIZE) if options[:l]
+    print sum_words.to_s.rjust(TEXT_SIZE) if options[:w]
+    print sum_bytesize.to_s.rjust(TEXT_SIZE) if options[:c]
   end
 end
 
@@ -110,4 +109,4 @@ def sum_bytesize
   ARGV.map { |argv| count_bytesize(argv) }.sum
 end
 
-run_wc
+run
