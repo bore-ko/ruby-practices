@@ -42,9 +42,9 @@ class Game
       left_shots = next_frame + after_next_frame
 
       if frame[0] == 10
-        add_point += left_shots.slice(0, 2).sum
+        add_point += Frame.new(left_shots[0], left_shots[1]).score
       elsif frame.sum == 10
-        add_point += left_shots.fetch(0)
+        add_point += Frame.new(left_shots[0]).score
       end
     end
     add_point + frames.flatten.sum
