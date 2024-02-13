@@ -2,21 +2,22 @@
 
 require_relative 'frame'
 class Game
-  attr_reader :shots
+  attr_reader :marks
 
-  def initialize(shots)
-    @shots = shots
+  def initialize(marks)
+    @marks = marks
   end
 
   def frames
     frames = []
     tmp_save_shots_for_frame = []
 
+    shots = marks.map { |mark| Shot.new(mark) }
     shots.each do |shot|
-      tmp_save_shots_for_frame << shot
+      tmp_save_shots_for_frame << shot.score
 
       if frames.size < 9
-        if shot == 10
+        if Frame.new(shot.score).strike?
           frames << tmp_save_shots_for_frame.dup
           tmp_save_shots_for_frame.clear
         elsif tmp_save_shots_for_frame.size == 2
@@ -29,28 +30,28 @@ class Game
     frames << tmp_save_shots_for_frame
   end
 
-  def add_point
+  def point
     add_point = 0
 
-    9.times do |n|
-      frame, next_frame, after_next_frame = frames.slice(n, 3)
-      next_frame ||= []
-      after_next_frame ||= []
-      left_shots = next_frame + after_next_frame
+    game_frames = frames.map { |first, second, third| Frame.new(first, second, third) }
+    game_frames.map.with_index do |frame, index|
+      break add_point if index >= 9
 
-      if frame[0] == 10
-        add_point += left_shots.slice(0, 2).sum
-      elsif frame.sum == 10
-        add_point += left_shots.fetch(0)
+      left_shots = left_shots(frames, index)
+      if frame.strike?
+        add_point += left_shots[0] + left_shots[1]
+      elsif frame.spare?
+        add_point += left_shots[0]
       end
     end
 
-    add_point
+    point = frames.map { |frame| Frame.new(frame[0], frame[1], frame[2]).score }.sum
+    point + add_point
+  end
+
+  def left_shots(frames, index)
+    next_frame = frames[index + 1] || []
+    after_next_frame = frames[index + 2] || []
+    next_frame + after_next_frame
   end
 end
-
-argv = ARGV[0].split(',')
-shots = argv.map { |mark| Shot.new(mark).score }
-game = Game.new(shots)
-point = game.frames.map { |frame| Frame.new(frame[0], frame[1], frame[2]).score }.sum
-puts point + game.add_point
