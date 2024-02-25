@@ -3,8 +3,8 @@
 require_relative 'game'
 
 def main
-  shots = ARGV[0].split(',')
-  game = Game.new(shots)
+  marks = ARGV[0].split(',')
+  game = Game.new(marks)
   game.point
 end
 
