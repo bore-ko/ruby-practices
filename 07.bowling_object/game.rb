@@ -11,7 +11,7 @@ class Game
 
   def point
     point = 0
-    frames.map.with_index do |frame, index|
+    frames.each.with_index do |frame, index|
       if index <= 8
         left_shots = left_shots(frames, index)
 
