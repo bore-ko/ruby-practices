@@ -13,7 +13,7 @@ class Game
     point = 0
     frames.each.with_index do |frame, index|
       if index <= 8
-        left_shots = left_shots(frames, index)
+        left_shots = frames[index + 1].from_scores + frames[index + 2].from_scores
 
         if frame.strike?
           point += left_shots[0] + left_shots[1]
@@ -26,13 +26,6 @@ class Game
     end
 
     point
-  end
-
-  def left_shots(frames, index)
-    next_frame = frames[index + 1].from_scores
-    after_next_frame = frames[index + 2].from_scores
-
-    next_frame + after_next_frame
   end
 
   private
