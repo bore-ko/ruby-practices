@@ -2,7 +2,7 @@
 
 require_relative 'ls_command'
 
-class ShotFormat
+class ShortFormat
   attr_reader :current_items
 
   STANDARD_SIZE = 25
@@ -12,22 +12,21 @@ class ShotFormat
 
   def initialize(current_items)
     @items = current_items
-    @size = max_length
+    @size = max_items_size
     build_items
   end
 
-  def max_length
+  def max_items_size
     @items.map(&:size).max
   end
 
   def build_items
-    added_spaces_filenames = current_items_with_spaces
-    split_filenames = divided_current_items(added_spaces_filenames)
-    processed_filenames = grouped_current_items(split_filenames)
-    processed_filenames.each { |filenames| puts filenames.join }
+    added_spaces_filenames = items_with_spaces
+    splited_filenames = divid_items(added_spaces_filenames)
+    group_items(splited_filenames)
   end
 
-  def current_items_with_spaces
+  def items_with_spaces
     @items.map do |name|
       if @size >= STANDARD_SIZE
         name.ljust(@size + SMALL_SPACE_SIZE)
@@ -37,14 +36,14 @@ class ShotFormat
     end
   end
 
-  def divided_current_items(added_spaces_filenames)
+  def divid_items(added_spaces_filenames)
     turn_number = (added_spaces_filenames.size / DIVISOR_NUMBER).ceil
     filenames = []
     added_spaces_filenames.each_slice(turn_number) { |names| filenames.push(names) }
     filenames
   end
 
-  def grouped_current_items(split_filenames)
+  def group_items(split_filenames)
     max_size = split_filenames.map(&:size).max
     split_filenames.map do |names|
       names.size < max_size && (max_size - names.size).times { names.push('') }

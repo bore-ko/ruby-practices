@@ -2,4 +2,4 @@
 
 require_relative 'ls_command'
 
-LsCommand.new(ARGV).result
+LsCommand.new(ARGV).show
