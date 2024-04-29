@@ -3,51 +3,48 @@
 require_relative 'ls_command'
 
 class ShortFormat
-  attr_reader :current_items
-
   STANDARD_SIZE = 25
   SMALL_SPACE_SIZE = 2
   BID_SPACE_SIZE = 8
   DIVISOR_NUMBER = 3.0
 
-  def initialize(current_items)
-    @items = current_items
-    @size = max_items_size
-    build_items
+  def initialize(file_names)
+    @file_names = file_names
+    build_file_names
   end
 
-  def max_items_size
-    @items.map(&:size).max
+  def build_file_names
+    added_spaces_filenames = names_with_spaces
+    splited_filenames = divide_names(added_spaces_filenames)
+    group_names(splited_filenames)
   end
 
-  def build_items
-    added_spaces_filenames = items_with_spaces
-    splited_filenames = divid_items(added_spaces_filenames)
-    group_items(splited_filenames)
-  end
-
-  def items_with_spaces
-    @items.map do |name|
-      if @size >= STANDARD_SIZE
-        name.ljust(@size + SMALL_SPACE_SIZE)
+  def names_with_spaces
+    @file_names.map do |name|
+      if max_names_size >= STANDARD_SIZE
+        name.ljust(max_names_size + SMALL_SPACE_SIZE)
       else
-        name.ljust(@size + BID_SPACE_SIZE)
+        name.ljust(max_names_size + BID_SPACE_SIZE)
       end
     end
   end
 
-  def divid_items(added_spaces_filenames)
+  def max_names_size
+    @file_names.map(&:size).max
+  end
+
+  def divide_names(added_spaces_filenames)
     turn_number = (added_spaces_filenames.size / DIVISOR_NUMBER).ceil
     filenames = []
     added_spaces_filenames.each_slice(turn_number) { |names| filenames.push(names) }
     filenames
   end
 
-  def group_items(split_filenames)
-    max_size = split_filenames.map(&:size).max
-    split_filenames.map do |names|
+  def group_names(splited_filenames)
+    max_size = splited_filenames.map(&:size).max
+    splited_filenames.map do |names|
       names.size < max_size && (max_size - names.size).times { names.push('') }
     end
-    split_filenames.transpose
+    splited_filenames.transpose
   end
 end

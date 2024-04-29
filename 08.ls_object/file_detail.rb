@@ -3,7 +3,7 @@
 require_relative 'long_format'
 
 class FileDetail
-  attr_reader :name, :file_stat
+  attr_reader :name
 
   FILE_TYPES = {
     'file' => '-',
@@ -30,6 +30,18 @@ class FileDetail
     @file_stat = File.lstat(name)
   end
 
+  def blocks
+    @file_stat.blocks
+  end
+
+  def size
+    @file_stat.size
+  end
+
+  def nlink
+    @file_stat.nlink
+  end
+
   def type
     FILE_TYPES[@file_stat.ftype]
   end
@@ -38,20 +50,12 @@ class FileDetail
     @file_stat.mode.to_s(8)
   end
 
-  def nlink
-    @file_stat.nlink
-  end
-
   def owner_user_name
     Etc.getpwuid(@file_stat.uid).name
   end
 
   def owner_group_name
     Etc.getgrgid(@file_stat.gid).name
-  end
-
-  def size
-    @file_stat.size
   end
 
   def last_updated_month
