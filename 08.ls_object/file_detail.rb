@@ -30,7 +30,7 @@ class FileDetail
     @file_stat = File.lstat(name)
   end
 
-  def blocks
+  def block
     @file_stat.blocks
   end
 

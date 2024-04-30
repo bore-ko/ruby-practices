@@ -11,7 +11,7 @@ class LongFormat
   end
 
   def total_blocks
-    @file_details.map(&:blocks).sum
+    @file_details.map(&:block).sum
   end
 
   def max_size_string_length
