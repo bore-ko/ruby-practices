@@ -3,7 +3,6 @@
 require 'optparse'
 require 'etc'
 require_relative 'short_format'
-require_relative 'long_format'
 require_relative 'file_detail'
 
 class LsCommand
@@ -19,19 +18,19 @@ class LsCommand
   end
 
   def show
-    @formats = create_formats
+    @formatter = create_formatter
 
     if @options.include?(:l)
-      @formats.file_details.each.with_index(1) do |file, index|
+      @formatter.map { |name| FileDetail.new(name) }.each.with_index(1) do |file, index|
         print_repeat_file_detail(file, index)
       end
     else
-      @formats.build_file_names.each { |file_names| puts file_names.join }
+      @formatter.puts_file_names
     end
   end
 
-  def create_formats
-    @options.include?(:l) ? LongFormat.new(file_names) : ShortFormat.new(file_names)
+  def create_formatter
+    @options.include?(:l) ? file_names : ShortFormat.new(file_names)
   end
 
   def file_names
@@ -47,13 +46,13 @@ class LsCommand
 
   def print_repeat_file_detail(file, index)
     print [
-      index == 1 ? "total #{@formats.total_blocks}\n" : nil,
+      index == 1 ? "total #{FileDetail.total_blocks(@formatter)}\n" : nil,
       file.type,
       "#{file.owner_permission}#{file.group_permission}#{file.other_user_permission}  ",
-      "#{file.nlink.to_s.rjust(@formats.max_size_string_length_for_nlinks)} ",
+      "#{file.nlink.to_s.rjust(FileDetail.max_size_string_length_for_nlinks(@formatter))} ",
       "#{file.owner_user_name}  ",
       "#{file.owner_group_name}  ",
-      "#{file.size.to_s.rjust(@formats.max_size_string_length)} ",
+      "#{file.size.to_s.rjust(FileDetail.max_size_string_length(@formatter))} ",
       "#{file.last_updated_month.to_s.rjust(TWO_WIDTH)} ",
       "#{file.last_updated_day.to_s.rjust(TWO_WIDTH)} ",
       "#{format('%02d', file.last_updated_hour)}:#{format('%02d', file.last_updated_min)} ",

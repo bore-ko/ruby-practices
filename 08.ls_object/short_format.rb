@@ -10,7 +10,10 @@ class ShortFormat
 
   def initialize(file_names)
     @file_names = file_names
-    build_file_names
+  end
+
+  def puts_file_names
+    build_file_names.each { |file_names| puts file_names.join }
   end
 
   def build_file_names
