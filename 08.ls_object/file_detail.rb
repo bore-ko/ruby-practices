@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'long_formatter'
+
 class FileDetail
   attr_reader :name
 
@@ -26,18 +28,6 @@ class FileDetail
   def initialize(name)
     @name = name
     @file_stat = File.lstat(name)
-  end
-
-  def self.total_blocks(file_names)
-    file_names.map { |name| File.lstat(name).blocks }.sum
-  end
-
-  def self.max_size_string_length(file_names)
-    file_names.map { |name| File.lstat(name).size.to_s.length }.max
-  end
-
-  def self.max_size_string_length_for_nlinks(file_names)
-    file_names.map { |name| File.lstat(name).nlink.to_s.length }.max
   end
 
   def block

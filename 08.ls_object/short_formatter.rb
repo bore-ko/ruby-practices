@@ -2,7 +2,7 @@
 
 require_relative 'ls_command'
 
-class ShortFormat
+class ShortFormatter
   STANDARD_SIZE = 25
   SMALL_SPACE_SIZE = 2
   BID_SPACE_SIZE = 8
@@ -10,6 +10,7 @@ class ShortFormat
 
   def initialize(file_names)
     @file_names = file_names
+    puts_file_names
   end
 
   def puts_file_names
