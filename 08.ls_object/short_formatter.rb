@@ -10,12 +10,13 @@ class ShortFormatter
 
   def initialize(file_names)
     @file_names = file_names
-    puts_file_names
   end
 
   def puts_file_names
     build_file_names.each { |file_names| puts file_names.join }
   end
+
+  private
 
   def build_file_names
     added_spaces_filenames = names_with_spaces
