@@ -10,7 +10,7 @@ class LongFormatter
     @file_details = file_names.map { |name| FileDetail.new(name) }
   end
 
-  def print_repeat_file_detail
+  def show
     @file_details.each.with_index(1) do |file, index|
       print [
         index == 1 ? "total #{total_block}\n" : nil,

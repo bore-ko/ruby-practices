@@ -12,7 +12,7 @@ class ShortFormatter
     @file_names = file_names
   end
 
-  def puts_file_names
+  def show
     build_file_names.each { |file_names| puts file_names.join }
   end
 

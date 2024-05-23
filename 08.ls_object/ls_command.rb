@@ -15,15 +15,11 @@ class LsCommand
     optionparser.parse(argv)
   end
 
-  def show
-    @options.include?(:l) ? formatter.print_repeat_file_detail : formatter.puts_file_names
+  def formatter
+    (@options.include?(:l) ? LongFormatter.new(file_names) : ShortFormatter.new(file_names)).show
   end
 
   private
-
-  def formatter
-    @options.include?(:l) ? LongFormatter.new(file_names) : ShortFormatter.new(file_names)
-  end
 
   def file_names
     file_names =
